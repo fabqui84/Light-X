@@ -1,0 +1,4 @@
+relight_prompt: Red and Blue Neon Light
+bg_source: Left
+cfg: 2
+use_sky_mask: True

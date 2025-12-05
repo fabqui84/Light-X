@@ -1,0 +1,3 @@
+relight_prompt: Sunlight
+bg_source: RIGHT
+cfg: 2

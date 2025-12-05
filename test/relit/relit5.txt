@@ -1,0 +1,3 @@
+relight_prompt: Red and Blue Neon Light
+bg_source: Top
+cfg: 2

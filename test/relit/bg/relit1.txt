@@ -1,0 +1,1 @@
+bg_source: ./test/cond/bg_cond/4.png
