@@ -525,7 +525,7 @@ def main():
 
     # Path and basic parameters
     parser.add_argument("--data_root", type=str,
-                        default=",
+                        default="",
                         help="Input folder containing .png images")
     parser.add_argument("--out_dir", type=str, default="",
                         help="Directory to save relit results")
