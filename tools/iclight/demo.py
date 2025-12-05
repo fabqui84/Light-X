@@ -28,19 +28,35 @@ model_configs = {
     'vitl': {'encoder': 'vitl', 'features': 256, 'out_channels': [256, 512, 1024, 1024]},
     'vitg': {'encoder': 'vitg', 'features': 384, 'out_channels': [1536, 1536, 1536, 1536]}
 }
+model_path = f'tools/iclight/da/checkpoints/depth_anything_v2_{encoder}.pth'
+model_urls = {
+    'vits': 'https://huggingface.co/depth-anything/Depth-Anything-V2-Small/resolve/main/depth_anything_v2_vits.pth',
+    'vitb': 'https://huggingface.co/depth-anything/Depth-Anything-V2-Base/resolve/main/depth_anything_v2_vitb.pth',
+    'vitl': 'https://huggingface.co/depth-anything/Depth-Anything-V2-Large/resolve/main/depth_anything_v2_vitl.pth',
+}
+# Download model if not exists
+if not os.path.exists(model_path):
+    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    
+    if encoder in model_urls:
+        url = model_urls[encoder]
+        print(f"Downloading {encoder} model...")
+        download_url_to_file(url=url, dst=model_path)
+        print(f"Download completed: {model_path}")
+    else:
+        raise ValueError(f"Unsupported encoder type: {encoder}")
+# Load model
 depth_anything = DepthAnythingV2(**model_configs[encoder])
-depth_anything.load_state_dict(torch.load(f'tools/iclight/da/checkpoints/depth_anything_v2_{encoder}.pth', map_location='cpu'))
+depth_anything.load_state_dict(torch.load(model_path, map_location='cpu'))
 depth_anything = depth_anything.to(DEVICE).eval()
 
 
-# sd15_name = 'stablediffusionapi/realistic-vision-v51'
-sd15_name = '/share/project/cwm/tianqi.liu/workspace/hf/realistic-vision-v51'
+sd15_name = 'stablediffusionapi/realistic-vision-v51'
 tokenizer = CLIPTokenizer.from_pretrained(sd15_name, subfolder="tokenizer")
 text_encoder = CLIPTextModel.from_pretrained(sd15_name, subfolder="text_encoder")
 vae = AutoencoderKL.from_pretrained(sd15_name, subfolder="vae")
 unet = UNet2DConditionModel.from_pretrained(sd15_name, subfolder="unet")
-# rmbg = BriaRMBG.from_pretrained("briaai/RMBG-1.4")
-rmbg = BriaRMBG.from_pretrained("/share/project/cwm/tianqi.liu/workspace/hf/RMBG-1.4")
+rmbg = BriaRMBG.from_pretrained("briaai/RMBG-1.4")
 
 # Change UNet
 with torch.no_grad():
@@ -509,9 +525,9 @@ def main():
 
     # Path and basic parameters
     parser.add_argument("--data_root", type=str,
-                        default="/share/project/cwm/tianqi.liu/workspace/baselines/5dgen/iclight/pexel/first_frame_video_49",
+                        default=",
                         help="Input folder containing .png images")
-    parser.add_argument("--out_dir", type=str, default="out-soft-light",
+    parser.add_argument("--out_dir", type=str, default="",
                         help="Directory to save relit results")
     parser.add_argument("--input_bg_path", type=str, default=None,
                         help="Path to input background image (only used when --bg_source is 'Input Image')")
