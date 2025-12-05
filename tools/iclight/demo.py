@@ -80,6 +80,7 @@ unet.forward = hooked_unet_forward
 # Load
 
 model_path = './tools/iclight/checkpoints/iclight_sd15_fc.safetensors'
+os.makedirs(os.path.dirname(model_path), exist_ok=True)
 
 if not os.path.exists(model_path):
     download_url_to_file(url='https://huggingface.co/lllyasviel/ic-light/resolve/main/iclight_sd15_fc.safetensors', dst=model_path)
