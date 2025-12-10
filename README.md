@@ -63,6 +63,20 @@ Recent advances in illumination control extend image-based methods to video, yet
  pip install -r requirements.txt
   ```
 
+#### Download Pretrained Models
+
+Pretrained models are hosted on Hugging Face and load automatically during inference.  
+If your environment cannot access Hugging Face, you can **download them manually**:
+
+- Text-based / background-image lighting:  
+  👉 https://huggingface.co/tqliu/Light-X
+
+- HDR / reference-image lighting (also supports text/bg):  
+  👉 https://huggingface.co/tqliu/Light-X-Uni
+
+After downloading, set `--transformer_path` in `inference.py` to your local model files.
+
+
 ## 🚀 Inference
 Run inference using the following script:
 ```bash
