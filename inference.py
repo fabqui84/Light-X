@@ -207,7 +207,9 @@ if __name__ == "__main__":
     parser = get_parser()  # infer config.py
     opts = parser.parse_args()
     opts.weight_dtype = torch.bfloat16
-    opts.save_dir = opts.out_dir
+    if opts.exp_name == None:
+        opts.exp_name = datetime.now().strftime("%Y%m%d_%H%M")
+    opts.save_dir = os.path.join(opts.out_dir, opts.exp_name)
     os.makedirs(opts.save_dir, exist_ok=True)
     
     pvd = LightX(opts)
