@@ -172,15 +172,15 @@ Convert the DeepSpeed ZeRO sharded checkpoint to a single fp32 file for inferenc
 _Example (for step 16000):_
 
 ```bash
-python tools/zero_to_fp32.py output_train/checkpoint-16000 output_train/checkpoint-16000-out --safe_serialization
+python tools/zero_to_fp32.py train_outputs/checkpoint-16000 train_outputs/checkpoint-16000-out --safe_serialization
 ```
 
-> `output_train/checkpoint-16000-out` is the resulting fp32 checkpoint directory.
+> `train_outputs/checkpoint-16000-out` is the resulting fp32 checkpoint directory.
 
 You can then pass this directory directly to the inference script:
 
 ```bash
-python inference.py --transformer_path output_train/checkpoint-16000-out
+python inference.py --transformer_path train_outputs/checkpoint-16000-out
 ```
 
 
