@@ -50,6 +50,7 @@ https://github.com/user-attachments/assets/2211979f-4910-4a88-bf19-19711fa07182
 ## 🌟 Abstract
 Recent advances in illumination control extend image-based methods to video, yet still facing a trade-off between lighting fidelity and temporal consistency. Moving beyond relighting, a key step toward generative modeling of real-world scenes is the joint control of camera trajectory and illumination, since visual dynamics are inherently shaped by both geometry and lighting. To this end, we present **Light-X**, a video generation framework that enables controllable rendering from monocular videos with both viewpoint and illumination control. **1)** We propose a disentangled design that decouples geometry and lighting signals: geometry and motion are captured via dynamic point clouds projected along user-defined camera trajectories, while illumination cues are provided by a relit frame consistently projected into the same geometry. These explicit, fine-grained cues enable effective disentanglement and guide high-quality illumination. **2)** To address the lack of paired multi-view and multi-illumination videos, we introduce **Light-Syn**, a degradation-based pipeline with inverse-mapping that synthesizes training pairs from in-the-wild monocular footage. This strategy yields a dataset covering static, dynamic, and AI-generated scenes, ensuring robust training. Extensive experiments show that Light-X outperforms baseline methods in joint camera-illumination control and surpasses prior video relighting methods under both text- and background-conditioned settings.
 
+
 ## 🛠️ Installation
 #### Clone Light-X
   ```
@@ -66,15 +67,13 @@ Recent advances in illumination control extend image-based methods to video, yet
 #### Download Pretrained Models
 
 Pretrained models are hosted on Hugging Face and load automatically during inference.  
-If your environment cannot access Hugging Face, you can **download them manually**:
+If your environment cannot access Hugging Face, you may download them manually:
 
-- Text-based / background-image lighting:  
-  👉 https://huggingface.co/tqliu/Light-X
+- Text-based / background-image lighting:  [tqliu/Light-X](https://huggingface.co/tqliu/Light-X)
 
-- HDR / reference-image lighting (also supports text/bg):  
-  👉 https://huggingface.co/tqliu/Light-X-Uni
+- HDR / reference-image lighting (also supports text/bg):  [tqliu/Light-X-Uni](https://huggingface.co/tqliu/Light-X-Uni)
 
-After downloading, set `--transformer_path` in `inference.py` to your local model files.
+After downloading, specify the local model directory using `--transformer_path` in `inference.py`.
 
 
 ## 🚀 Inference
@@ -84,7 +83,9 @@ bash run.sh
 ```
 All required models will be downloaded automatically.
 
-**Note:** We provide a list of commonly used commands along with their corresponding visual outputs in **[EXAMPLE.md](EXAMPLE.md)**. We encourage users to refer to this file to understand the purpose and effect of each argument.
+We also provide **[EXAMPLE.md](EXAMPLE.md)** with commonly used commands and their corresponding visual outputs.
+Please refer to this file to better understand the purpose and effect of each argument.
+
 
 The `run.sh` script executes `inference.py` with the following arguments:
 
@@ -99,28 +100,47 @@ python inference.py \
     --target_pose [THETA PHI RADIUS X Y] \
     --traj_txt [TRAJECTORY_TXT] \
     --relit_txt [RELIGHTING_TXT] \
-    [--relit_vd] \
     --relit_cond_type ['ic' | 'ref' | 'hdr' | 'bg'] \
+    [--relit_vd] \
     [--relit_cond_img CONDITION_IMAGE] \
     [--recam_vd]
 ```
 #### Key Arguments:
 🎥 Camera
 
-- `--camera`: Camera control (`traj` for trajectory, `target` for fixed view)
-- `--mode`: Motion style (`gradual`, `bullet`, `direct`, `dolly-zoom`)
-- `--traj_txt`: Trajectory file (required for `traj`)
-- `--target_pose`: Target view `<theta phi r x y>` (required for `target`)
-- `--recam_vd`: Enable re-camera
+- `--camera`:
+  Camera control mode:
+  - `traj`: Move the camera along a trajectory
+  - `target`: Render from a fixed target view
+
+- `--mode`:
+  Style of camera motion when rendering along a trajectory:
+  - `gradual`: Smooth and continuous viewpoint transition; suitable for natural, cinematic motion
+  - `bullet`: Fast forward-shifting / orbit-like motion with stronger parallax
+  - `direct`: Minimal smoothing; quickly moves from start to end pose
+  - `dolly-zoom`: Hitchcock-style effect where the camera moves while adjusting radius; the subject stays the same size while the background expands/compresses
+
+- `--traj_txt`: Path to a trajectory text file (required when `--camera traj` is used)
+
+- `--target_pose`: Target view `<theta phi r x y>` (required when `--camera target` is used)
+
+- `--recam_vd`: Enable video re-camera mode
+
   
 See [here](https://github.com/TrajectoryCrafter/TrajectoryCrafter/blob/main/docs/config_help.md) for more details on camera parameters.
 
 💡 Relighting
 
-- `--relit_txt`: Relighting parameter file
-- `--relit_vd`: Enable relighting
-- `--relit_cond_type`: Lighting condition (`ic`, `ref`, `hdr`, `bg`)
-- `--relit_cond_img`: Conditioning image (required for `ref` / `hdr` modes)
+- `--relit_txt`: Path to a relighting parameter text file
+- `--relit_vd`: Enable video relighting
+- `--relit_cond_type`:
+  Choose the lighting condition source:
+  - `ic`: IC-Light (text-based / background-based lighting)
+  - `ref`: Reference image lighting
+  - `hdr`: HDR environment map lighting
+  - `bg`: Background image lighting
+- `--relit_cond_img`: Path to the conditioning image (required for `ref` / `hdr` modes)
+
 
 
 ## 🔥 Training
@@ -131,17 +151,15 @@ Download the [dataset](https://huggingface.co/datasets/tqliu/Light-Syn/tree/main
 
 #### 2. Generate Metadata
 
-Generate the metadata JSON file describing the training samples.
+Generate the metadata JSON file describing the training samples:
 
 ```bash
 python tools/gen_json.py -r <DATA_PATH>
 ```
 
-Then Update the `DATASET_META_NAME` in your config to the path of the newly generated JSON file.
+Then Update the `DATASET_META_NAME` in `train.sh` to the path of the newly generated JSON file.
 
 #### 3. Start Training
-
-Begin the training process. Checkpoints will be saved in the `output_train/` directory.
 
 ```bash
 bash train.sh
@@ -151,7 +169,7 @@ bash train.sh
 
 Convert the DeepSpeed ZeRO sharded checkpoint to a single fp32 file for inference.
 
-* **Example (for step 16000):**
+_Example (for step 16000):_
 
 ```bash
 python tools/zero_to_fp32.py output_train/checkpoint-16000 output_train/checkpoint-16000-out --safe_serialization
@@ -159,9 +177,7 @@ python tools/zero_to_fp32.py output_train/checkpoint-16000 output_train/checkpoi
 
 > `output_train/checkpoint-16000-out` is the resulting fp32 checkpoint directory.
 
-#### 5. Run Inference
-
-Pass the converted fp32 checkpoint directory to your inference script.
+You can then pass this directory directly to the inference script:
 
 ```bash
 python inference.py --transformer_path output_train/checkpoint-16000-out
@@ -172,11 +188,11 @@ python inference.py --transformer_path output_train/checkpoint-16000-out
 If you find our work useful for your research, please consider citing our paper:
 
 ```
-@article{lightx,
-  title   = {Light-X: Generative 4D Video Rendering with Camera and Illumination Control},
-  author  = {Liu, Tianqi and Chen, Zhaoxi and Huang, Zihao and Xu, Shaocong and Zhang, Saining and Ye, Chongjie and Li, Bohan and Cao, Zhiguo and Li, Wei and Zhao, Hao and Liu, Ziwei},
-  journal = {arXiv preprint arXiv:2512.05115},
-  year    = {2025}
+@article{liu2025light,
+  title={Light-X: Generative 4D Video Rendering with Camera and Illumination Control},
+  author={Liu, Tianqi and Chen, Zhaoxi and Huang, Zihao and Xu, Shaocong and Zhang, Saining and Ye, Chongjie and Li, Bohan and Cao, Zhiguo and Li, Wei and Zhao, Hao and others},
+  journal={arXiv preprint arXiv:2512.05115},
+  year={2025}
 }
 ```
 
