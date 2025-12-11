@@ -1,4 +1,4 @@
-export OUTPUT_DIR="output_train"
+export OUTPUT_DIR="train_outputs"
 export LOG_DIR="${OUTPUT_DIR}/stdout_log"
 mkdir -p "$LOG_DIR"
 
