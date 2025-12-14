@@ -11,9 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Cog (official binary)
+      - name: Install Cog (official)
         run: |
-          curl -L https://github.com/replicate/cog/releases/download/v0.10.0/cog-linux-amd64 -o cog
+          curl -fL https://github.com/replicate/cog/releases/latest/download/cog-linux-amd64 -o cog
           chmod +x cog
           sudo mv cog /usr/local/bin/cog
           cog --version
