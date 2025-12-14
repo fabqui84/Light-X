@@ -3,7 +3,7 @@ name: Push to Replicate
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   push:
@@ -15,11 +15,6 @@ jobs:
         run: |
           sudo curl -o /usr/local/bin/cog -L https://github.com/replicate/cog/releases/latest/download/cog-linux-amd64
           sudo chmod +x /usr/local/bin/cog
-
-      - name: Login to Replicate
-        env:
-          REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
-        run: cog login
 
       - name: Push model to Replicate
         env:
